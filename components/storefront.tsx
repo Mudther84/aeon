@@ -1,18 +1,19 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import useSWR from 'swr'
 import { ArrowDown, ArrowRight, Check, ChevronDown, Heart, Menu, Minus, Plus, Search, ShoppingBag, Sparkles, Star, X } from 'lucide-react'
 
-type Product = { id: number; name: string; category: string; price: number; oldPrice: number; rating: number; image: string; tag: string; description: string }
+type Product = { id: string; name: string; category: string; price: number; oldPrice: number | null; rating: number | null; image: string; tag: string | null; description: string }
 const products: Product[] = [
-  { id: 1, name: 'Cloud Cleanser', category: 'Cleansers', price: 28, oldPrice: 36, rating: 4.9, image: 'photo-1556228720-195a672e8a03', tag: 'BESTSELLER', description: 'A soft, milky daily cleanser that leaves skin calm, comfortable, and never stripped.' },
-  { id: 2, name: 'Dew Drops Serum', category: 'Serums', price: 42, oldPrice: 54, rating: 4.8, image: 'photo-1608248543803-ba4f8c70ae0b', tag: 'NEW', description: 'A daily dose of hydration with hyaluronic acid and a dewy, weightless finish.' },
-  { id: 3, name: 'Daily Veil SPF 30', category: 'Moisturizers', price: 36, oldPrice: 45, rating: 4.9, image: 'photo-1601049541289-9b1b7bbbfe19', tag: 'EVERYDAY', description: 'A sheer, breathable mineral sunscreen made to layer beautifully under everything.' },
-  { id: 4, name: 'Night Shift Cream', category: 'Moisturizers', price: 48, oldPrice: 60, rating: 4.7, image: 'photo-1608248543803-ba4f8c70ae0b', tag: 'NIGHT RITUAL', description: 'A rich butters-and-peptides night cream for skin that wakes up feeling restored.' },
-  { id: 5, name: 'Soft Reset Balm', category: 'Cleansers', price: 32, oldPrice: 40, rating: 4.8, image: 'photo-1600428853876-fb5a850b444f', tag: 'CLEAN BEAUTY', description: 'A balm-to-milk makeup remover powered by oat and nourishing botanical oils.' },
-  { id: 6, name: 'Petal Polish', category: 'Treatments', price: 34, oldPrice: 42, rating: 4.6, image: 'photo-1570172619644-dfd03ed5d881', tag: 'GENTLE EXFOLIATION', description: 'A gentle weekly resurfacing treatment for a smooth, fresh-looking glow.' },
-  { id: 7, name: 'Barrier Butter', category: 'Moisturizers', price: 44, oldPrice: 55, rating: 4.9, image: 'photo-1556229010-6c3f2c9ca5f8', tag: 'SKIN FAVORITE', description: 'A cushiony ceramide cream that helps support your skin barrier all day long.' },
-  { id: 8, name: 'Calm Water Mist', category: 'Treatments', price: 24, oldPrice: 30, rating: 4.7, image: 'photo-1601049541289-9b1b7bbbfe19', tag: 'ON-THE-GO', description: 'A fine, refreshing facial mist with aloe and rosewater for an anytime reset.' },
+  { id: 'd26cb269-0936-45a4-ae5d-5bade1802501', name: 'Cloud Cleanser', category: 'Cleansers', price: 28, oldPrice: 36, rating: 4.9, image: 'photo-1556228720-195a672e8a03', tag: 'BESTSELLER', description: 'A soft, milky daily cleanser that leaves skin calm, comfortable, and never stripped.' },
+  { id: 'd26cb269-0936-45a4-ae5d-5bade1802502', name: 'Dew Drops Serum', category: 'Serums', price: 42, oldPrice: 54, rating: 4.8, image: 'photo-1608248543803-ba4f8c70ae0b', tag: 'NEW', description: 'A daily dose of hydration with hyaluronic acid and a dewy, weightless finish.' },
+  { id: 'd26cb269-0936-45a4-ae5d-5bade1802503', name: 'Daily Veil SPF 30', category: 'Moisturizers', price: 36, oldPrice: 45, rating: 4.9, image: 'photo-1601049541289-9b1b7bbbfe19', tag: 'EVERYDAY', description: 'A sheer, breathable mineral sunscreen made to layer beautifully under everything.' },
+  { id: 'd26cb269-0936-45a4-ae5d-5bade1802504', name: 'Night Shift Cream', category: 'Moisturizers', price: 48, oldPrice: 60, rating: 4.7, image: 'photo-1608248543803-ba4f8c70ae0b', tag: 'NIGHT RITUAL', description: 'A rich butters-and-peptides night cream for skin that wakes up feeling restored.' },
+  { id: 'd26cb269-0936-45a4-ae5d-5bade1802505', name: 'Soft Reset Balm', category: 'Cleansers', price: 32, oldPrice: 40, rating: 4.8, image: 'photo-1600428853876-fb5a850b444f', tag: 'CLEAN BEAUTY', description: 'A balm-to-milk makeup remover powered by oat and nourishing botanical oils.' },
+  { id: 'd26cb269-0936-45a4-ae5d-5bade1802506', name: 'Petal Polish', category: 'Treatments', price: 34, oldPrice: 42, rating: 4.6, image: 'photo-1570172619644-dfd03ed5d881', tag: 'GENTLE EXFOLIATION', description: 'A gentle weekly resurfacing treatment for a smooth, fresh-looking glow.' },
+  { id: 'd26cb269-0936-45a4-ae5d-5bade1802507', name: 'Barrier Butter', category: 'Moisturizers', price: 44, oldPrice: 55, rating: 4.9, image: 'photo-1556229010-6c3f2c9ca5f8', tag: 'SKIN FAVORITE', description: 'A cushiony ceramide cream that helps support your skin barrier all day long.' },
+  { id: 'd26cb269-0936-45a4-ae5d-5bade1802508', name: 'Calm Water Mist', category: 'Treatments', price: 24, oldPrice: 30, rating: 4.7, image: 'photo-1601049541289-9b1b7bbbfe19', tag: 'ON-THE-GO', description: 'A fine, refreshing facial mist with aloe and rosewater for an anytime reset.' },
 ]
 const photo = (id: string, w = 900) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=85`
 const categories = [
@@ -28,16 +29,17 @@ function ProductCard({ product, onAdd, onQuickView }: { product: Product; onAdd:
   return <article className="product-card group">
     <div className="product-photo" onClick={() => onQuickView(product)} role="button" tabIndex={0} onKeyDown={(event) => event.key === 'Enter' && onQuickView(product)} aria-label={`Quick view ${product.name}`}>
       <img src={photo(product.image)} alt={product.name} loading="lazy" />
-      <span className="product-tag">{product.tag}</span>
+      {product.tag && <span className="product-tag">{product.tag}</span>}
       <button className={`heart-button ${liked ? 'is-liked' : ''}`} aria-label={liked ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`} onClick={(event) => { event.stopPropagation(); setLiked(!liked) }}><Heart size={18} fill={liked ? 'currentColor' : 'none'} /></button>
       <button className="quick-view" onClick={(event) => { event.stopPropagation(); onQuickView(product) }}>Quick view <ArrowRight size={15} /></button>
     </div>
-    <div className="product-info"><div><h3>{product.name}</h3><div className="rating"><Star size={12} fill="currentColor" /> {product.rating} <span>({product.id * 23 + 41})</span></div></div><div className="price"><b>${product.price}</b><del>${product.oldPrice}</del></div></div>
+    <div className="product-info"><div><h3>{product.name}</h3><div className="rating"><Star size={12} fill="currentColor" /> {product.rating ?? 'New'} <span>(142)</span></div></div><div className="price"><b>${product.price}</b>{product.oldPrice != null && <del>${product.oldPrice}</del>}</div></div>
     <button className="add-button" onClick={() => onAdd(product)}>Add to bag <Plus size={15} /></button>
   </article>
 }
 
 export function Storefront() {
+  const { data: catalog = products } = useSWR<Product[]>('/api/backend/products', async (url: string) => { const response = await fetch(url, { credentials: 'same-origin' }); if (!response.ok) throw new Error('Catalog unavailable'); return response.json() }, { revalidateOnFocus: true })
   const [cart, setCart] = useState<CartLine[]>([])
   const [cartOpen, setCartOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -61,21 +63,21 @@ export function Storefront() {
   const count = cart.reduce((sum, line) => sum + line.quantity, 0)
   const subtotal = cart.reduce((sum, line) => sum + line.product.price * line.quantity, 0)
   const visibleProducts = useMemo(() => {
-    const list = products.filter((product) => (activeCategory === 'All' || product.category === activeCategory) && `${product.name} ${product.category}`.toLowerCase().includes(query.toLowerCase()))
+    const list = catalog.filter((product) => (activeCategory === 'All' || product.category === activeCategory) && `${product.name} ${product.category}`.toLowerCase().includes(query.toLowerCase()))
     if (sort === 'low') list.sort((a, b) => a.price - b.price)
     if (sort === 'high') list.sort((a, b) => b.price - a.price)
-    if (sort === 'rating') list.sort((a, b) => b.rating - a.rating)
+    if (sort === 'rating') list.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
     return list
-  }, [activeCategory, sort, query])
+  }, [activeCategory, sort, query, catalog])
   const addToCart = (product: Product) => { setCart((items) => { const found = items.find((line) => line.product.id === product.id); return found ? items.map((line) => line.product.id === product.id ? { ...line, quantity: line.quantity + 1 } : line) : [...items, { product, quantity: 1 }] }); setToast(`${product.name} added to your bag`) }
-  const updateQuantity = (id: number, delta: number) => setCart((items) => items.map((line) => line.product.id === id ? { ...line, quantity: line.quantity + delta } : line).filter((line) => line.quantity > 0))
+  const updateQuantity = (id: string, delta: number) => setCart((items) => items.map((line) => line.product.id === id ? { ...line, quantity: line.quantity + delta } : line).filter((line) => line.quantity > 0))
   const subscribe = (event: React.FormEvent<HTMLFormElement>) => { event.preventDefault(); if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setEmailError('Enter a valid email address to join us.'); return } setEmailError(''); setSubscribed(true) }
   const closeOverlays = () => { setQuickView(null); setCartOpen(false) }
   return <main>
     <div className="announcement"><Sparkles size={13} /> A little self-care, delivered. Complimentary shipping on orders $50+ <ArrowRight size={13} /></div>
     <header className="navbar"><a className="brand" href="#home" aria-label="Form & Flora home"><span className="brand-mark">f.</span><span>form <i>&</i> flora</span></a>
       <nav className={menuOpen ? 'nav-links nav-open' : 'nav-links'} aria-label="Main navigation"><a href="#home" onClick={() => setMenuOpen(false)}>Home</a><a href="#shop" onClick={() => setMenuOpen(false)}>Shop</a><a href="#categories" onClick={() => setMenuOpen(false)}>Categories</a><a href="#about" onClick={() => setMenuOpen(false)}>Our story</a><a href="#contact" onClick={() => setMenuOpen(false)}>Contact</a></nav>
-      <div className="nav-actions"><button className="icon-button search-trigger" aria-label="Search products" onClick={() => { setSearchOpen(!searchOpen); document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }) }}><Search size={19} /></button><button className="bag-trigger" onClick={() => setCartOpen(true)} aria-label={`Shopping bag, ${count} items`}><ShoppingBag size={19} /><span>Bag</span><span className="bag-count">{count}</span></button><button className="icon-button menu-trigger" aria-label={menuOpen ? 'Close menu' : 'Open menu'} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={22} /> : <Menu size={22} />}</button></div>
+      <div className="nav-actions"><a className="account-trigger" href="/login">Sign in</a><button className="icon-button search-trigger" aria-label="Search products" onClick={() => { setSearchOpen(!searchOpen); document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' }) }}><Search size={19} /></button><button className="bag-trigger" onClick={() => setCartOpen(true)} aria-label={`Shopping bag, ${count} items`}><ShoppingBag size={19} /><span>Bag</span><span className="bag-count">{count}</span></button><button className="icon-button menu-trigger" aria-label={menuOpen ? 'Close menu' : 'Open menu'} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={22} /> : <Menu size={22} />}</button></div>
     </header>
     <section className="hero" id="home"><div className="hero-copy"><span className="eyebrow"><span className="eyebrow-line" /> SKINCARE, STRIPPED BACK</span><h1>Good skin.<br /><em>Good to you.</em></h1><p>Thoughtful essentials for the skin you&apos;re in. Made with care, made to feel like you.</p><div className="hero-actions"><a className="button-dark" href="#shop">Shop the collection <ArrowRight size={16} /></a><a className="text-link" href="#about">Our philosophy <ArrowDown size={14} /></a></div><div className="hero-proof"><div className="proof-stars">★★★★★</div><span>Loved by 12,000+ happy faces</span></div></div><div className="hero-visual"><img src={photo('photo-1608248543803-ba4f8c70ae0b', 1400)} alt="A calm skincare ritual with thoughtfully crafted beauty products" fetchPriority="high" /><div className="hero-sticker"><span>GOOD<br />THINGS<br /><i>inside</i></span><Sparkles size={18} /></div><div className="image-caption">THE EVERYDAY EDIT <span>01 / 04</span></div></div><div className="hero-side-note">MADE FOR YOUR SKIN, NOT THE ALGORITHM</div></section>
     <section className="trust-strip" aria-label="Shopping benefits"><div><span className="trust-icon">01</span><p><b>Free shipping</b><small>On orders over $50</small></p></div><div><span className="trust-icon">02</span><p><b>Easy returns</b><small>30 days to feel good</small></p></div><div><span className="trust-icon">03</span><p><b>Kind to skin</b><small>Thoughtful ingredients</small></p></div><div><span className="trust-icon">04</span><p><b>Here to help</b><small>Real people, always</small></p></div></section>

@@ -1,0 +1,24 @@
+server:
+  port: ${SERVER_PORT:8083}
+spring:
+  application:
+    name: projects-service
+  datasource:
+    url: ${PROJECTS_DB_URL:jdbc:mysql://localhost:3306/projects_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${MYSQL_USER:formflora}
+    password: ${MYSQL_PASSWORD:formflora_dev}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+security:
+  jwt:
+    secret: ${AUTH_JWT_SECRET}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
