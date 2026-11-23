@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+mysql --protocol=socket -uroot -p"$MYSQL_ROOT_PASSWORD" <<SQL
+CREATE DATABASE IF NOT EXISTS catalog_db CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+CREATE DATABASE IF NOT EXISTS projects_db CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+GRANT ALL PRIVILEGES ON catalog_db.* TO '$MYSQL_USER'@'%';
+GRANT ALL PRIVILEGES ON projects_db.* TO '$MYSQL_USER'@'%';
+FLUSH PRIVILEGES;
+SQL

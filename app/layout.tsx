@@ -4,7 +4,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Form & Flora — Good skin. Good to you.',
-  description: 'Thoughtful skincare essentials for the skin you’re in. Shop gentle cleansers, serums, moisturizers, and more from Form & Flora.',
+  description: 'Thoughtful skincare essentials from Form & Flora. Shop the collection, create an account, and explore our store workspace.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'light dark',
+  colorScheme: 'light',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
     { media: '(prefers-color-scheme: dark)', color: 'black' },
